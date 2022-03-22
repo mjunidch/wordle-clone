@@ -70,25 +70,24 @@ export class GameThemeManagerComponent
 
   public createNewGame(): void {
     this.gameBoard = new GameBoard();
-    // console.log('createNewGame', this.gameBoard);
+    this.gameToastService.clearToasts();
     this.initializeGuesses();
     this.getWords();
     this.newGameInterval = setInterval(() => {
-      const index = this.getWordIndex();
-      const word = this.WORDS[index];
-      console.log(
-        this.datePipe.transform(this.gameBoard.gameStartTime, 'HH:mm:ss a'),
-        this.datePipe.transform(new Date(), 'HH:mm:ss a'),
-        this.datePipe.transform(this.gameBoard.gameEndTime, 'HH:mm:ss a'),
-        index,
-        word
-      );
+      // const index = this.getWordIndex();
+      // const word = this.WORDS[index];
+      // console.log(
+      //   this.datePipe.transform(this.gameBoard.gameStartTime, 'HH:mm:ss a'),
+      //   this.datePipe.transform(new Date(), 'HH:mm:ss a'),
+      //   this.datePipe.transform(this.gameBoard.gameEndTime, 'HH:mm:ss a'),
+      //   index,
+      //   word
+      // );
       if (new Date() > this.gameBoard.gameEndTime) {
-        console.log('new');
         clearInterval(this.newGameInterval);
         this.createNewGame();
       }
-    }, 10000);
+    }, 5000);
   }
 
   public async handleClickKey(key: string) {

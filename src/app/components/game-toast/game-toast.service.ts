@@ -46,6 +46,11 @@ export class GameToastService {
     );
   }
 
+  public clearToasts(): void {
+    this._gameToasts = [];
+    this._systemToasts = [];
+  }
+
   private addToast(toast: GameToast, toasts: GameToast[]) {
     toasts.unshift(toast);
     if (toast.duration != ToastDuration.INFINITY) {
