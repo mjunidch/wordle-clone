@@ -1,0 +1,109 @@
+<div
+  class="settings-overlay"
+  [attr.data-modal-state]="gameSettingsService.modalState"
+>
+  <div class="settings-content">
+    <header>
+      <h1>Settings</h1>
+      <div
+        class="close-icon game-icon"
+        (click)="gameSettingsService.closeSettings()"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+        >
+          <path
+            fill="var(--color-tone-1)"
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          ></path>
+        </svg>
+      </div>
+    </header>
+    <div class="content-container">
+      <div class="sections">
+        <section>
+          <div class="setting">
+            <div class="text">
+              <div class="title">Hard Mode</div>
+              <div class="description">Any revealed hints must guesses</div>
+            </div>
+            <div class="control">
+              <game-switch
+                [(inputSwitchValue)]="gameSettings.isHardMode"
+                [disabled]="
+                  !gameSettings.isHardMode &&
+                  gameBoard.gameStatus === GameStatus.IN_PROGRESS &&
+                  gameBoard.rowIndex != null &&
+                  gameBoard.rowIndex > 0
+                "
+                (click)="onHardModeClick()"
+                id="hard-mode"
+                name="hard-mode"
+              ></game-switch>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">Dark Theme</div>
+            </div>
+            <div class="control">
+              <game-switch
+                [(inputSwitchValue)]="gameSettings.isDarkMode"
+                (inputSwitchValueChange)="onDarkModeChanges()"
+                id="dark-theme"
+                name="dark-theme"
+              ></game-switch>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">High Contrast Mode</div>
+              <div class="description">For improved color vision</div>
+            </div>
+            <div class="control">
+              <game-switch
+                [(inputSwitchValue)]="gameSettings.isHighContrastMode"
+                (inputSwitchValueChange)="onHighContrastModeChanges()"
+                id="color-blind-theme"
+                name="color-blind-theme"
+              ></game-switch>
+            </div>
+          </div>
+        </section>
+        <section>
+          <div class="setting">
+            <div class="text">
+              <div class="title">Feedback</div>
+            </div>
+            <div class="control">
+              <a href="#" title="mjunidch@gmail.com">Email</a>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">Community</div>
+            </div>
+            <div class="control">
+              <a href="#" target="blank" title="@mjunidch">Twitter</a>
+            </div>
+          </div>
+          <div class="setting">
+            <div class="text">
+              <div class="title">Questions?</div>
+            </div>
+            <div class="control">
+              <a href="#" target="blank">FAQ</a>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div id="footnote">
+        <div id="copyright">© 2022 The New York Times Company</div>
+        <div class="puzzle-number">#100</div>
+      </div>
+    </div>
+  </div>
+</div>

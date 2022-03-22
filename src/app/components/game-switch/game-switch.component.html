@@ -1,0 +1,18 @@
+<div
+  class="switch-container"
+  [attr.checked]="inputSwitchValue"
+  [attr.disabled]="disabled"
+>
+  <input
+    [(ngModel)]="inputSwitchValue"
+    [disabled]="disabled"
+    (ngModelChange)="handleOnClickEvent($event)"
+    id="{{ id }}"
+    type="checkbox"
+  />
+  <label for="{{ id }}">
+    <div class="switch">
+      <span class="knob"></span>
+    </div>
+  </label>
+</div>

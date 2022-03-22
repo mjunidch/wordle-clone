@@ -1,0 +1,19 @@
+.toast {
+  position: relative;
+  margin: 16px;
+  background-color: var(--color-tone-1);
+  color: var(--color-tone-7);
+  padding: 16px;
+  border: none;
+  border-radius: 4px;
+  opacity: 1;
+  transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
+  font-weight: 700;
+}
+// .success {
+//   background-color: var(--color-correct);
+//   color: var(--tile-text-color);
+// }
+.fade {
+  opacity: 0;
+}

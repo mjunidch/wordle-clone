@@ -1,0 +1,7 @@
+<div class="row">
+  <game-tile
+    *ngFor="let tile of data.tiles"
+    [tile]="tile"
+    [ngClass]="tile.classList"
+  ></game-tile>
+</div>
