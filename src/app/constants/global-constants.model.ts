@@ -1,6 +1,6 @@
 export class GlobalConstants {
-  public static TILE_COUNT = 3;
-  public static GUESS_COUNT = 3;
+  public static TILE_COUNT = 5;
+  public static GUESS_COUNT = 6;
 
   public static DISABLE_ANIMATION = false;
 
