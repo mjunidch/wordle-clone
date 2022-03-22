@@ -57,6 +57,6 @@ export class GameSettingsComponent implements OnInit {
     duration?: ToastDuration,
     logLevel?: ToastLogLevel
   ) {
-    this.gameToastService.addGameToast(text, duration, logLevel);
+    this.gameToastService.addSystemToast(text, duration, logLevel);
   }
 }

@@ -1,4 +1,9 @@
 <div id="timer">
-  {{ daysToDday != null && daysToDday > 0 ? daysToDday + ":" : ""
-  }}{{ hoursToDday }}:{{ minutesToDday }}:{{ secondsToDday }}
+  {{
+    daysToDday != null && daysToDday > 0
+      ? (daysToDday | number: "2.0-0") + ":"
+      : ""
+  }}{{ hoursToDday | number: "2.0-0" }}:{{ minutesToDday | number: "2.0-0" }}:{{
+    secondsToDday | number: "2.0-0"
+  }}
 </div>

@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { interval, Subscription } from 'rxjs';
+import { DateUtils } from './../../utils/date.utils';
 
 @Component({
   selector: 'countdown-timer',
@@ -23,18 +24,20 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
   }
 
   private allocateTimeUnits(timeDifference: number) {
-    this.daysToDday = 0;
     if (timeDifference <= 0) {
+      this.daysToDday = 0;
       this.hoursToDday = 0;
       this.minutesToDday = 0;
       this.secondsToDday = 0;
       return;
     }
 
-    let totalSeconds = timeDifference / 1000;
-    this.hoursToDday = Math.floor(totalSeconds / 3600);
-    this.minutesToDday = Math.floor((totalSeconds % 3600) / 60);
-    this.secondsToDday = Math.floor(totalSeconds % 60);
+    const tempTime = DateUtils.getDuration(timeDifference);
+
+    this.daysToDday = tempTime.days;
+    this.hoursToDday = tempTime.hours;
+    this.minutesToDday = tempTime.minutes;
+    this.secondsToDday = tempTime.seconds;
   }
 
   constructor() {}

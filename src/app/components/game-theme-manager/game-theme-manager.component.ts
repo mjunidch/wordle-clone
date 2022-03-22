@@ -7,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { interval, Subscription } from 'rxjs';
 import { GuessRow } from '../game-row/game-row.model';
 import { GameSettingsService } from '../game-settings/game-settings.service';
 import { GameStat } from '../game-stat/game-stat.model';
@@ -36,7 +37,7 @@ export class GameThemeManagerComponent
 
   private WORDS!: string[];
 
-  private newGameInterval!: any;
+  private subscriptionNewGame!: Subscription;
 
   constructor(
     private elementRef: ElementRef,
@@ -47,7 +48,7 @@ export class GameThemeManagerComponent
     public gameToastService: GameToastService
   ) {
     this.gameStat = new GameStat();
-    this.createNewGame();
+    this.getWords();
   }
 
   ngOnInit(): void {}
@@ -58,9 +59,7 @@ export class GameThemeManagerComponent
   }
 
   ngOnDestroy(): void {
-    if (this.newGameInterval) {
-      clearInterval(this.newGameInterval);
-    }
+    this.unSubscribeNewGame();
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -75,8 +74,9 @@ export class GameThemeManagerComponent
     this.gameBoard = new GameBoard();
 
     this.initializeGuesses();
-    this.getWords();
-    this.newGameInterval = setInterval(() => {
+    this.getNewWord();
+
+    this.subscriptionNewGame = interval(5000).subscribe((x) => {
       // const index = this.getWordIndex();
       // const word = this.WORDS[index];
       // console.log(
@@ -87,16 +87,23 @@ export class GameThemeManagerComponent
       //   word
       // );
       if (new Date() > this.gameBoard.gameEndTime) {
-        clearInterval(this.newGameInterval);
+        this.unSubscribeNewGame();
         this.createNewGame();
       }
-    }, 5000);
+    });
+  }
+
+  private unSubscribeNewGame() {
+    if (this.subscriptionNewGame) {
+      this.subscriptionNewGame.unsubscribe();
+    }
   }
 
   public async handleClickKey(key: string) {
     if (this.gameBoard.gameStatus != GameStatus.IN_PROGRESS) {
       return;
     }
+    this.gameBoard.gameStarted = true;
     if (this.isLetter(key)) {
       if (this.gameBoard.tileIndex < GlobalConstants.TILE_COUNT) {
         const curGuess = this.gameBoard.guesses[this.gameBoard.rowIndex];
@@ -171,51 +178,65 @@ export class GameThemeManagerComponent
       ...this.gameBoard.letterCounts,
     });
 
-    this.updateKeyboardStates(curGuess);
-
     if (curGuess.isFullyCorrect()) {
-      this.showToast('NICE!', undefined, ToastLogLevel.SUCCESS);
-      this.gameBoard.gameStatus = GameStatus.WIN;
       this.gameStat.processWin(this.gameBoard.rowIndex);
-      await curGuess.processWin();
-      await WordleService.wait(GlobalConstants.SHARE_POPUP_DELAY);
-      this.showShare();
-      return;
-    }
+      if (!this.gameBoard.gameStarted) return;
 
-    if (this.gameBoard.rowIndex === GlobalConstants.GUESS_COUNT - 1) {
-      this.gameBoard.gameStatus = GameStatus.FAIL;
+      this.gameBoard.gameStatus = GameStatus.WIN;
+      this.showToast('NICE!', undefined, ToastLogLevel.SUCCESS);
+      await curGuess.processWin();
+      if (!this.gameBoard.gameStarted) return;
+
+      await WordleService.wait(GlobalConstants.SHARE_POPUP_DELAY);
+      if (!this.gameBoard.gameStarted) return;
+
+      this.showShare();
+    } else if (this.gameBoard.rowIndex === GlobalConstants.GUESS_COUNT - 1) {
       this.gameStat.processFail();
+      if (!this.gameBoard.gameStarted) return;
+
+      this.gameBoard.gameStatus = GameStatus.FAIL;
       this.showToast(
         this.gameBoard.solutionWord.toUpperCase(),
         ToastDuration.INFINITY
       );
       await WordleService.wait(GlobalConstants.SHARE_POPUP_DELAY);
+      if (!this.gameBoard.gameStarted) return;
+
       this.showShare();
-      return;
+    } else {
+      this.gameBoard.rowIndex++;
+      this.gameBoard.tileIndex = 0;
     }
 
-    this.gameBoard.rowIndex++;
-    this.gameBoard.tileIndex = 0;
+    this.updateKeyboardStates(curGuess);
   }
 
-  getWords(): void {
-    this.wordleService
-      .getWords(GlobalConstants.TILE_COUNT)
-      .subscribe((words) => {
+  private getWords(): void {
+    this.wordleService.getWords(GlobalConstants.TILE_COUNT).subscribe({
+      next: (words) => {
         this.WORDS = words;
-        const index = this.getWordIndex();
-        const word = this.WORDS[index];
-        this.gameBoard.solutionWord = word.toLowerCase();
-        console.log('Solution: ', this.gameBoard.solutionWord);
-        for (const letter of this.gameBoard.solutionWord) {
-          const count = this.gameBoard.letterCounts[letter];
-          if (count == null) {
-            this.gameBoard.letterCounts[letter] = 0;
-          }
-          this.gameBoard.letterCounts[letter]++;
-        }
-      });
+
+        this.createNewGame();
+      },
+      error: (error) => {
+        console.log('Error feching word list', error);
+      },
+    });
+  }
+
+  private getNewWord() {
+    const index = this.getWordIndex();
+    const word = this.WORDS[index];
+    this.gameBoard.solutionWord = word.toLowerCase();
+    console.log('Solution: ', this.gameBoard.solutionWord);
+    for (const letter of this.gameBoard.solutionWord) {
+      const count = this.gameBoard.letterCounts[letter];
+      if (count == null) {
+        this.gameBoard.letterCounts[letter] = 0;
+      }
+      this.gameBoard.letterCounts[letter]++;
+    }
   }
 
   private getWordIndex(): number {

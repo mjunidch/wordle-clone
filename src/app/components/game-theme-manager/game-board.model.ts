@@ -1,36 +1,14 @@
-import { GlobalConstants } from 'src/app/constants/global-constants.model';
 import { GuessRow } from '../game-row/game-row.model';
+import { GameSettings } from '../game-settings/game-settings.model';
 import { LetterState } from '../game-tile/guess-tile.model';
-
-export enum GameInterval {
-  YEAR = 'year',
-  MONTH = 'month',
-  WEEK = 'week',
-  DAY = 'day',
-  HOUR = 'hour',
-  MINUTES_5 = 'minute|5',
-  MINUTES_2 = 'minute|2',
-  MINUTE = 'minute',
-  SECONDS_30 = 'second|30',
-  SECOND = 'second',
-}
-
-export class DateUnitValue {
-  public static map: any = {
-    day: 24 * 60 * 60 * 1000,
-    hour: 60 * 60 * 1000,
-    minute: 60 * 1000,
-    second: 1000,
-  };
-}
-
+import { GlobalConstants } from './../../constants/global-constants.model';
+import { DateUtils, UnitOfTime } from './../../utils/date.utils';
 export class GameBoard {
-  public static gameInterval: GameInterval = GameInterval.MINUTES_2;
-
   private _gameStartTime!: Date;
   private _gameEndTime!: Date;
 
   constructor(
+    public gameStarted: boolean = false,
     public guesses: GuessRow[] = [],
     public gameStatus: GameStatus = GameStatus.IN_PROGRESS,
     public solutionWord: string = '',
@@ -40,25 +18,8 @@ export class GameBoard {
     public keyBoardStates: { [key: string]: LetterState } = {},
     private _currentTime: Date = new Date()
   ) {
-    this.gameStartTime = new Date(_currentTime);
-    this.gameEndTime = new Date(_currentTime);
-  }
-
-  public static getGameIntervalUnit(): string {
-    let tempArr: string[] = this.gameInterval.split('|');
-    return tempArr[0];
-  }
-
-  public static getGameIntervalUnitValue(): number {
-    let unit = this.getGameIntervalUnit();
-    return DateUnitValue.map[unit] as number;
-  }
-
-  public static getGameIntervalOffset(): number | null {
-    let tempArr: string[] = this.gameInterval.split('|');
-    return tempArr.length > 1 && tempArr[1] != null
-      ? parseInt(tempArr[1])
-      : null;
+    this.gameStartTime = DateUtils.clone(_currentTime);
+    this.gameEndTime = DateUtils.clone(_currentTime);
   }
 
   public get gameStartTime(): Date {
@@ -66,7 +27,7 @@ export class GameBoard {
   }
 
   public set gameStartTime(value: Date) {
-    this._gameStartTime = GameBoard.getGameStartTime(new Date(value));
+    this._gameStartTime = GameBoard.getGameStartTime(DateUtils.clone(value));
   }
 
   public get gameEndTime(): Date {
@@ -74,104 +35,60 @@ export class GameBoard {
   }
 
   public set gameEndTime(value: Date) {
-    let gameIntervalUnit = GameBoard.getGameIntervalUnit();
-    let gameIntervalOffset = GameBoard.getGameIntervalOffset();
+    let gameIntervalUnit = GameSettings.getGameIntervalUnit();
+    let gameIntervalOffset = GameSettings.getGameIntervalOffset();
 
-    value = GameBoard.getGameStartTime(new Date(value));
+    value = GameBoard.getGameStartTime(DateUtils.clone(value));
 
-    let cloneDate = new Date(value);
     if (gameIntervalOffset != null) {
-      // value = value.add(
-      //   gameIntervalOffset,
-      //   gameIntervalUnit as moment.DurationInputArg2
-      // );
-      if (gameIntervalUnit == GameInterval.DAY) {
-        cloneDate.setDate(cloneDate.getDate() + gameIntervalOffset);
-      } else if (gameIntervalUnit == GameInterval.HOUR) {
-        cloneDate.setHours(cloneDate.getHours() + gameIntervalOffset);
-      } else if (gameIntervalUnit == GameInterval.MINUTE) {
-        cloneDate.setMinutes(cloneDate.getMinutes() + gameIntervalOffset);
-      } else if (gameIntervalUnit == GameInterval.SECOND) {
-        cloneDate.setSeconds(cloneDate.getSeconds() + gameIntervalOffset);
-      }
+      value = DateUtils.add(
+        value,
+        gameIntervalOffset,
+        gameIntervalUnit as UnitOfTime.Duration
+      );
     } else {
-      // value = value.endOf(gameIntervalUnit as moment.unitOfTime.StartOf);
-      if (gameIntervalUnit == GameInterval.DAY) {
-        cloneDate.setUTCHours(23, 59, 59, 999);
-      } else if (gameIntervalUnit == GameInterval.HOUR) {
-        cloneDate.setUTCHours(cloneDate.getUTCHours(), 59, 59, 999);
-      } else if (gameIntervalUnit == GameInterval.MINUTE) {
-        cloneDate.setUTCHours(
-          cloneDate.getUTCHours(),
-          cloneDate.getUTCMinutes(),
-          59,
-          999
-        );
-      } else if (gameIntervalUnit == GameInterval.SECOND) {
-        cloneDate.setUTCHours(
-          cloneDate.getUTCHours(),
-          cloneDate.getUTCMinutes(),
-          cloneDate.getUTCSeconds(),
-          999
-        );
-      }
+      value = DateUtils.endOf(value, gameIntervalUnit as UnitOfTime.StartOf);
     }
 
-    this._gameEndTime = cloneDate;
+    this._gameEndTime = value;
   }
 
   public static getGameStartTime(value: Date) {
-    let gameIntervalUnit = GameBoard.getGameIntervalUnit();
+    let gameIntervalUnit = GameSettings.getGameIntervalUnit();
 
-    let dateDiff = GameBoard.getDateDiff(value);
+    let dateDiff = this.getDateDiff(value);
 
-    let cloneDate = new Date(GlobalConstants.TEMP_DATE);
-    if (gameIntervalUnit == GameInterval.DAY) {
-      cloneDate.setDate(cloneDate.getDate() + dateDiff);
-    } else if (gameIntervalUnit == GameInterval.HOUR) {
-      cloneDate.setHours(cloneDate.getHours() + dateDiff);
-    } else if (gameIntervalUnit == GameInterval.MINUTE) {
-      cloneDate.setMinutes(cloneDate.getMinutes() + dateDiff);
-    } else if (gameIntervalUnit == GameInterval.SECOND) {
-      cloneDate.setSeconds(cloneDate.getSeconds() + dateDiff);
-    }
+    // return GlobalConstants.TEMP_DATE.clone()
+    //   .add(dateDiff, gameIntervalUnit as moment.unitOfTime.Diff)
+    //   .startOf(gameIntervalUnit as moment.unitOfTime.StartOf);
 
-    if (gameIntervalUnit == GameInterval.DAY) {
-      cloneDate.setUTCHours(0, 0, 0, 0);
-    } else if (gameIntervalUnit == GameInterval.HOUR) {
-      cloneDate.setUTCHours(cloneDate.getUTCHours(), 0, 0, 0);
-    } else if (gameIntervalUnit == GameInterval.MINUTE) {
-      cloneDate.setUTCHours(
-        cloneDate.getUTCHours(),
-        cloneDate.getUTCMinutes(),
-        0,
-        0
-      );
-    } else if (gameIntervalUnit == GameInterval.SECOND) {
-      cloneDate.setUTCHours(
-        cloneDate.getUTCHours(),
-        cloneDate.getUTCMinutes(),
-        cloneDate.getUTCSeconds(),
-        0
-      );
-    }
-
+    let cloneDate = DateUtils.clone(GlobalConstants.TEMP_DATE);
+    cloneDate = DateUtils.add(
+      cloneDate,
+      dateDiff,
+      gameIntervalUnit as UnitOfTime.Diff
+    );
+    cloneDate = DateUtils.startOf(
+      cloneDate,
+      gameIntervalUnit as UnitOfTime.StartOf
+    );
     return cloneDate;
   }
 
   public static getDateDiff(value: Date) {
-    let gameIntervalUnit = GameBoard.getGameIntervalUnit();
-    let gameIntervalUnitValue = GameBoard.getGameIntervalUnitValue();
-    let gameIntervalOffset = GameBoard.getGameIntervalOffset();
-
-    let diffWithTempDate: number =
-      (value.getTime() - GlobalConstants.TEMP_DATE.getTime()) /
-      gameIntervalUnitValue;
+    let gameIntervalUnit = GameSettings.getGameIntervalUnit();
+    let gameIntervalOffset = GameSettings.getGameIntervalOffset();
 
     // let diffWithTempDate: number = value.diff(
     //   GlobalConstants.TEMP_DATE,
     //   gameIntervalUnit as moment.unitOfTime.Diff
     // );
+
+    let diffWithTempDate: number = DateUtils.diff(
+      value,
+      GlobalConstants.TEMP_DATE,
+      gameIntervalUnit as UnitOfTime.Diff
+    );
 
     let intervalOffsetDiff =
       gameIntervalOffset != null ? diffWithTempDate % gameIntervalOffset : 0;

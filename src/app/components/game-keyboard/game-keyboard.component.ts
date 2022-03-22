@@ -17,7 +17,7 @@ import { LetterState } from '../game-tile/guess-tile.model';
 export class GameKeyboardComponent implements OnInit {
   @Output() keyChange: EventEmitter<string> = new EventEmitter<string>();
 
-  @Input() public keyStates: { [key: string]: LetterState } = {};
+  @Input() public keyStates!: { [key: string]: LetterState };
 
   readonly keyboardRows = [
     ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],

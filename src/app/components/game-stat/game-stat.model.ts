@@ -1,4 +1,4 @@
-import { GlobalConstants } from 'src/app/constants/global-constants.model';
+import { GlobalConstants } from './../../constants/global-constants.model';
 
 export class GameStat {
   constructor(
