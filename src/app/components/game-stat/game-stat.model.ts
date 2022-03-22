@@ -26,6 +26,7 @@ export class GameStat {
   }
 
   public processWin(rowIndex: number): void {
+    this.played++;
     this.totalWin++;
     this.currentStreak++;
     if (this.maxStreak < this.currentStreak) {
@@ -35,6 +36,7 @@ export class GameStat {
   }
 
   public processFail(): void {
+    this.played++;
     this.currentStreak = 0;
   }
 }

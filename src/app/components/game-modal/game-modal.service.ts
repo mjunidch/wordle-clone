@@ -31,6 +31,9 @@ export class GameModalService {
 
   remove(id: string) {
     const modal = this.modals.find((x) => x.id === id) as GameModalDomain;
+    if (modal == null) {
+      return;
+    }
     modal.remove();
     // remove modal from array of active modals
     this.modals = this.modals.filter((x) => x.id !== id);
@@ -39,12 +42,18 @@ export class GameModalService {
   open(id: string) {
     // open modal specified by id
     const modal = this.modals.find((x) => x.id === id) as GameModalDomain;
+    if (modal == null) {
+      return;
+    }
     modal.open();
   }
 
   close(id: string): void {
     // close modal specified by id
     const modal = this.modals.find((x) => x.id === id) as GameModalDomain;
+    if (modal == null) {
+      return;
+    }
     modal.isClosing = true;
     setTimeout(() => {
       modal.close();

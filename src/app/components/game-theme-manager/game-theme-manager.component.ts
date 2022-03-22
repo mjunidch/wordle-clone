@@ -69,8 +69,11 @@ export class GameThemeManagerComponent
   }
 
   public createNewGame(): void {
-    this.gameBoard = new GameBoard();
     this.gameToastService.clearToasts();
+    this.closeShare();
+
+    this.gameBoard = new GameBoard();
+
     this.initializeGuesses();
     this.getWords();
     this.newGameInterval = setInterval(() => {
@@ -124,10 +127,6 @@ export class GameThemeManagerComponent
   }
 
   private async checkCurrentGuess() {
-    if (this.gameBoard.rowIndex == 0) {
-      this.gameStat.played++;
-    }
-
     const curGuess = this.gameBoard.guesses[this.gameBoard.rowIndex];
     if (curGuess.isSomeEmpty()) {
       this.showToast('Not enough letters');
@@ -272,6 +271,10 @@ export class GameThemeManagerComponent
 
   public async showShare() {
     this.openModal('modal-statistics');
+  }
+
+  public async closeShare() {
+    this.closeModal('modal-statistics');
   }
 
   private showToast(
