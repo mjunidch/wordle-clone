@@ -9,7 +9,7 @@
     </div>
     <div class="statistic-container">
       <div class="statistic">
-        {{ gameStat.winPercentage }}
+        {{ gameStat.winPercentage | number: "1.0-2" }}
       </div>
       <div class="label">Win %</div>
     </div>
