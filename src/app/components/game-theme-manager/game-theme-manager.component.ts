@@ -19,6 +19,7 @@ import {
 import { ToastDuration, ToastLogLevel } from '../game-toast/game-toast.model';
 import { GameToastService } from '../game-toast/game-toast.service';
 import { GlobalConstants } from './../../constants/global-constants.model';
+import { LocalStorageService } from './../../services/local-storage.service';
 import { WordleService } from './../../services/wordle.service';
 import { GameModalService } from './../game-modal/game-modal.service';
 import { GameBoard, GameStatus } from './game-board.model';
@@ -32,11 +33,8 @@ export class GameThemeManagerComponent
   implements OnInit, AfterViewInit, OnDestroy
 {
   public gameBoard!: GameBoard;
-
   public gameStat!: GameStat;
-
   private WORDS!: string[];
-
   private subscriptionNewGame!: Subscription;
 
   constructor(
@@ -45,13 +43,14 @@ export class GameThemeManagerComponent
     private modalService: GameModalService,
     private wordleService: WordleService,
     public gameSettingsService: GameSettingsService,
-    public gameToastService: GameToastService
-  ) {
-    this.gameStat = new GameStat();
+    public gameToastService: GameToastService,
+    private localStorageService: LocalStorageService
+  ) {}
+
+  ngOnInit(): void {
+    this.getGameStatData();
     this.getWords();
   }
-
-  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     const ne = this.elementRef.nativeElement;
@@ -67,11 +66,15 @@ export class GameThemeManagerComponent
     this.handleClickKey(event.key);
   }
 
-  public createNewGame(): void {
+  public createNewGame(initial: boolean = false): void {
     this.gameToastService.clearToasts();
     this.closeShare();
 
-    this.gameBoard = new GameBoard();
+    if (initial) {
+      this.getGameBoardData();
+    } else {
+      this.setGameBoardData(new GameBoard());
+    }
 
     this.initializeGuesses();
     this.getNewWord();
@@ -210,6 +213,8 @@ export class GameThemeManagerComponent
     }
 
     this.updateKeyboardStates(curGuess);
+    this.setGameBoardData();
+    this.setGameStatData();
   }
 
   private getWords(): void {
@@ -217,7 +222,7 @@ export class GameThemeManagerComponent
       next: (words) => {
         this.WORDS = words;
 
-        this.createNewGame();
+        this.createNewGame(true);
       },
       error: (error) => {
         console.log('Error feching word list', error);
@@ -227,9 +232,16 @@ export class GameThemeManagerComponent
 
   private getNewWord() {
     const index = this.getWordIndex();
-    const word = this.WORDS[index];
-    this.gameBoard.solutionWord = word.toLowerCase();
-    console.log('Solution: ', this.gameBoard.solutionWord);
+    const word = this.WORDS[index].toLowerCase();
+    if (
+      this.gameBoard.solutionWord != null &&
+      this.gameBoard.solutionWord === word
+    ) {
+      // console.log('Solution: ', this.gameBoard.solutionWord);
+      return;
+    }
+    this.gameBoard.solutionWord = word;
+    // console.log('Solution: ', this.gameBoard.solutionWord);
     for (const letter of this.gameBoard.solutionWord) {
       const count = this.gameBoard.letterCounts[letter];
       if (count == null) {
@@ -237,6 +249,7 @@ export class GameThemeManagerComponent
       }
       this.gameBoard.letterCounts[letter]++;
     }
+    this.setGameBoardData();
   }
 
   private getWordIndex(): number {
@@ -252,12 +265,16 @@ export class GameThemeManagerComponent
   }
 
   private initializeGuesses() {
+    if (this.gameBoard.guesses.length >= GlobalConstants.GUESS_COUNT) {
+      return;
+    }
     for (let i = 0; i < GlobalConstants.GUESS_COUNT; i++) {
       const guess: GuessTile[] = [];
       for (let j = 0; j < GlobalConstants.TILE_COUNT; j++) {
         guess.push(new GuessTile());
       }
       this.gameBoard.guesses.push(new GuessRow(guess));
+      this.setGameBoardData();
     }
   }
 
@@ -276,6 +293,36 @@ export class GameThemeManagerComponent
         this.gameBoard.keyBoardStates[curLetter] = targetState;
       }
     }
+  }
+
+  private getOrSetGameBoardData(value: GameBoard, isSet: boolean = false) {
+    this.gameBoard = this.localStorageService.getValue(
+      'gameBoard',
+      value,
+      GameBoard,
+      isSet
+    );
+  }
+  private getGameBoardData(value: GameBoard = new GameBoard()) {
+    return this.getOrSetGameBoardData(value);
+  }
+  private setGameBoardData(value: GameBoard = this.gameBoard) {
+    return this.getOrSetGameBoardData(value, true);
+  }
+
+  private getOrSetGameStatData(value: GameStat, isSet: boolean = false) {
+    this.gameStat = this.localStorageService.getValue(
+      'gameStat',
+      value,
+      GameStat,
+      isSet
+    );
+  }
+  private getGameStatData(value: GameStat = new GameStat()) {
+    return this.getOrSetGameStatData(value);
+  }
+  private setGameStatData(value: GameStat = this.gameStat) {
+    return this.getOrSetGameStatData(value, true);
   }
 
   private isLetter = (str: string) => {

@@ -1,6 +1,8 @@
 import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { GameBoard, GameStatus } from '../game-theme-manager/game-board.model';
 import { LetterState } from '../game-tile/guess-tile.model';
+import { ToastDuration, ToastLogLevel } from '../game-toast/game-toast.model';
+import { GameToastService } from '../game-toast/game-toast.service';
 import { GameStat } from './game-stat.model';
 
 @Component({
@@ -15,7 +17,7 @@ export class GameStatComponent implements OnInit {
 
   readonly GameStatus = GameStatus;
 
-  constructor() {}
+  constructor(private gameToastService: GameToastService) {}
 
   ngOnInit(): void {}
 
@@ -45,6 +47,14 @@ export class GameStatComponent implements OnInit {
     }
     console.log(clipboardContent);
     navigator.clipboard.writeText(clipboardContent);
-    console.log('Copied results to clipboard');
+    this.showToast('Copied results to clipboard');
+  }
+
+  private showToast(
+    text: string,
+    duration?: ToastDuration,
+    logLevel?: ToastLogLevel
+  ) {
+    this.gameToastService.addSystemToast(text, duration, logLevel);
   }
 }

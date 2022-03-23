@@ -1,13 +1,19 @@
+import { Type } from 'class-transformer';
 import { GuessTile } from '../game-tile/guess-tile.model';
 import { GlobalConstants } from './../../constants/global-constants.model';
 import { WordleService } from './../../services/wordle.service';
 
 export class GuessRow {
+  @Type(() => GuessTile)
+  public tiles: GuessTile[];
+
   constructor(
-    public tiles: GuessTile[],
+    tiles: GuessTile[],
     public letters: string = '',
     public animation: RowAnimationState = RowAnimationState.IDLE
-  ) {}
+  ) {
+    this.tiles = tiles;
+  }
 
   public async updateStateOnSubmit(
     solutionWord: string,
