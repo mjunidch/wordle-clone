@@ -39,10 +39,12 @@ export class GameSettingsComponent implements OnInit {
       this.showToast('Hard Mode can only be enabled at the start of a round');
       return;
     }
+    this.setGameSettingsData();
   }
 
   public onDarkModeChanges(): void {
     document.body.classList.toggle('nightmode', this.gameSettings.isDarkMode);
+    this.setGameSettingsData();
   }
 
   public onHighContrastModeChanges(): void {
@@ -50,6 +52,11 @@ export class GameSettingsComponent implements OnInit {
       'colorblind',
       this.gameSettings.isHighContrastMode
     );
+    this.setGameSettingsData();
+  }
+
+  public setGameSettingsData() {
+    this.gameSettingsService.setGameSettingsData();
   }
 
   private showToast(

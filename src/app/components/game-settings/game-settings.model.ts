@@ -4,6 +4,7 @@ export enum GameInterval {
   WEEK = 'week',
   DAY = 'day',
   HOUR = 'hour',
+  MINUTES_10 = 'minute|10',
   MINUTES_5 = 'minute|5',
   MINUTES_2 = 'minute|2',
   MINUTE = 'minute',
@@ -12,7 +13,7 @@ export enum GameInterval {
 }
 
 export class GameSettings {
-  public static gameInterval: GameInterval = GameInterval.MINUTES_2;
+  public static gameInterval: GameInterval = GameInterval.MINUTES_10;
 
   constructor(
     public isHardMode: boolean = false,
