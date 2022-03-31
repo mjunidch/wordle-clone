@@ -23,7 +23,7 @@ export class GameSettingsComponent implements OnInit {
     public gameToastService: GameToastService
   ) {
     this.gameSettings = this.gameSettingsService.gameSettings;
-    this.onDarkModeChanges();
+    this.updateDarkModeAndPrefersColorSchemeHandler();
     this.onHighContrastModeChanges();
   }
 
@@ -42,9 +42,18 @@ export class GameSettingsComponent implements OnInit {
     this.setGameSettingsData();
   }
 
-  public onDarkModeChanges(): void {
-    document.body.classList.toggle('nightmode', this.gameSettings.isDarkMode);
-    this.setGameSettingsData();
+  public onDarkModeChanges(updateLocalStorage: boolean = true): void {
+    document.body.classList.toggle(
+      'night-mode',
+      this.gameSettingsService.isDarkMode
+    );
+    document.body.classList.toggle(
+      'light-mode',
+      !this.gameSettingsService.isDarkMode
+    );
+    if (updateLocalStorage) {
+      this.setIsDarkModeData();
+    }
   }
 
   public onHighContrastModeChanges(): void {
@@ -55,8 +64,47 @@ export class GameSettingsComponent implements OnInit {
     this.setGameSettingsData();
   }
 
+  private updateDarkModeAndPrefersColorSchemeHandler() {
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    if (this.gameSettingsService.isDarkMode == null) {
+      this.isDarkColorScheme(media);
+    } else {
+      this.onDarkModeChanges(false);
+    }
+
+    if ('addEventListener' in media) {
+      // Chrome & Firefox
+      media.addEventListener('change', (ev) => {
+        this.isDarkColorScheme(ev);
+      });
+    } else if ('addListener' in media) {
+      // Safari
+      media.addListener((ev) => {
+        this.isDarkColorScheme(ev);
+      });
+    }
+  }
+
+  private isDarkColorScheme(
+    media: MediaQueryListEvent | MediaQueryList,
+    updateLocalStorage: boolean = true
+  ): void {
+    const isDarkScheme = media.matches;
+    const canUpdateProperty =
+      this.gameSettingsService.isDarkMode != null &&
+      this.gameSettingsService.isDarkMode != isDarkScheme;
+    this.gameSettingsService.isDarkMode = isDarkScheme;
+    if (canUpdateProperty) {
+      this.onDarkModeChanges(updateLocalStorage);
+    }
+  }
+
   public setGameSettingsData() {
     this.gameSettingsService.setGameSettingsData();
+  }
+
+  public setIsDarkModeData() {
+    this.gameSettingsService.setIsDarkModeData();
   }
 
   private showToast(

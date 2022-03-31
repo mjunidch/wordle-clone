@@ -1,26 +1,36 @@
 export class DateUtils {
+  public static MS_PER_SECOND = 1000;
+  public static MS_PER_MINUTE = 60 * this.MS_PER_SECOND;
+  public static MS_PER_HOUR = 60 * this.MS_PER_MINUTE;
+  public static MS_PER_DAY = 24 * this.MS_PER_HOUR;
+
   public static clone(date: Date): Date {
     return new Date(date);
   }
+
   public static getDuration(diffInMs: number): Duration {
-    let delta = diffInMs / 1000;
+    let delta = parseInt(diffInMs.toString());
 
-    let days = Math.floor(delta / 86400);
-    delta -= days * 86400;
+    let days = Math.floor(delta / this.MS_PER_DAY);
+    delta -= days * this.MS_PER_DAY;
 
-    let hours = Math.floor(delta / 3600) % 24;
-    delta -= hours * 3600;
+    let hours = Math.floor(delta / this.MS_PER_HOUR) % 24;
+    delta -= hours * this.MS_PER_HOUR;
 
-    let minutes = Math.floor(delta / 60) % 60;
-    delta -= minutes * 60;
+    let minutes = Math.floor(delta / this.MS_PER_MINUTE) % 60;
+    delta -= minutes * this.MS_PER_MINUTE;
 
-    let seconds = delta % 60;
+    let seconds = Math.floor(delta / this.MS_PER_SECOND) % 60;
+    delta -= seconds * this.MS_PER_SECOND;
+
+    let milliseconds = delta;
+
     return {
       days,
       hours,
       minutes,
       seconds,
-      milliseconds: 0,
+      milliseconds,
     };
   }
 
@@ -32,13 +42,13 @@ export class DateUtils {
     let diffInMs = date1.getTime() - date2.getTime();
     let result = null;
     if (unit == 'days' || unit == 'day' || unit == 'd') {
-      result = diffInMs / (24 * 60 * 60 * 1000);
+      result = diffInMs / this.MS_PER_DAY;
     } else if (unit == 'hours' || unit == 'hour' || unit == 'h') {
-      result = diffInMs / (60 * 60 * 1000);
+      result = diffInMs / this.MS_PER_HOUR;
     } else if (unit == 'minutes' || unit == 'minute' || unit == 'm') {
-      result = diffInMs / (60 * 1000);
+      result = diffInMs / this.MS_PER_MINUTE;
     } else if (unit == 'seconds' || unit == 'second' || unit == 's') {
-      result = diffInMs / 1000;
+      result = diffInMs / this.MS_PER_SECOND;
     } else if (
       unit == 'milliseconds' ||
       unit == 'millisecond' ||
@@ -51,6 +61,14 @@ export class DateUtils {
 
   public static startOf(date: Date, unit: UnitOfTime.StartOf = 'day'): Date {
     let cloneDate = this.clone(date);
+    if (unit == 'years' || unit == 'year' || unit == 'y') {
+      cloneDate.setMonth(1 - 1);
+      cloneDate.setDate(1);
+      cloneDate.setHours(0, 0, 0, 0);
+    } else if (unit == 'months' || unit == 'month' || unit == 'M') {
+      cloneDate.setDate(1);
+      cloneDate.setHours(0, 0, 0, 0);
+    }
     if (unit == 'days' || unit == 'day' || unit == 'd') {
       cloneDate.setHours(0, 0, 0, 0);
     } else if (unit == 'hours' || unit == 'hour' || unit == 'h') {
@@ -65,6 +83,15 @@ export class DateUtils {
 
   public static endOf(date: Date, unit: UnitOfTime.StartOf = 'day'): Date {
     let cloneDate = this.clone(date);
+    if (unit == 'years' || unit == 'year' || unit == 'y') {
+      cloneDate.setMonth(12 - 1);
+      cloneDate.setDate(31);
+      cloneDate.setHours(23, 59, 59, 999);
+    } else if (unit == 'months' || unit == 'month' || unit == 'M') {
+      cloneDate.setMonth(cloneDate.getMonth() + 1);
+      cloneDate.setDate(0);
+      cloneDate.setHours(23, 59, 59, 999);
+    }
     if (unit == 'days' || unit == 'day' || unit == 'd') {
       cloneDate.setHours(23, 59, 59, 999);
     } else if (unit == 'hours' || unit == 'hour' || unit == 'h') {
@@ -101,7 +128,13 @@ export class DateUtils {
   ): Date {
     let cloneDate = this.clone(date);
     let offsetWithDirection = offset * direction;
-    if (unit == 'days' || unit == 'day' || unit == 'd') {
+    if (unit == 'years' || unit == 'year' || unit == 'y') {
+      cloneDate.setFullYear(cloneDate.getFullYear() + offsetWithDirection);
+    } else if (unit == 'months' || unit == 'month' || unit == 'M') {
+      cloneDate.setMonth(cloneDate.getMonth() + offsetWithDirection);
+    } else if (unit == 'weeks' || unit == 'week' || unit == 'w') {
+      cloneDate.setDate(cloneDate.getDate() + offsetWithDirection * 7);
+    } else if (unit == 'days' || unit == 'day' || unit == 'd') {
       cloneDate.setDate(cloneDate.getDate() + offsetWithDirection);
     } else if (unit == 'hours' || unit == 'hour' || unit == 'h') {
       cloneDate.setHours(cloneDate.getHours() + offsetWithDirection);

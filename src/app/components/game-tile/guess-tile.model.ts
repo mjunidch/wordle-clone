@@ -24,6 +24,18 @@ export class GuessTile {
     public classList: string[] = []
   ) {}
 
+  public setData(letter: string, state: LetterState) {
+    this.letter = letter;
+    this.state = state;
+  }
+
+  public clearData() {
+    this.letter = '';
+    this.state = LetterState.EMPTY;
+    this.animation = TileAnimationState.IDLE;
+    this.classList = [];
+  }
+
   public async updateStateOnSubmit(
     solutionWord: string,
     letterCounts: { [letter: string]: number },
@@ -51,6 +63,16 @@ export class GuessTile {
     this.animation = TileAnimationState.FLIP_OUT;
     await WordleService.wait(GlobalConstants.AnimationDuration.FLIP_OUT);
     this.animation = TileAnimationState.IDLE;
+    // setTimeout(() => {
+    //   this.animation = TileAnimationState.FLIP_IN;
+    //   setTimeout(() => {
+    //     this.state = state;
+    //     this.animation = TileAnimationState.FLIP_OUT;
+    //     setTimeout(() => {
+    //       this.animation = TileAnimationState.IDLE;
+    //     }, GlobalConstants.AnimationDuration.FLIP_OUT);
+    //   }, GlobalConstants.AnimationDuration.FLIP_IN);
+    // }, (position * GlobalConstants.AnimationDuration.FLIP_IN) / 0.7);
   }
 
   public processWin() {

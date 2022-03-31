@@ -7,11 +7,13 @@ import { GameSettings } from './game-settings.model';
 })
 export class GameSettingsService {
   public gameSettings!: GameSettings;
+  public isDarkMode?: boolean;
 
   public modalState: string = 'close';
 
   constructor(private localStorageService: LocalStorageService) {
     this.getGameSettingsData();
+    this.getIsDarkModeData();
   }
 
   private getOrSetGameSettingsData(
@@ -30,6 +32,21 @@ export class GameSettingsService {
   }
   public setGameSettingsData(value: GameSettings = this.gameSettings) {
     return this.getOrSetGameSettingsData(value, true);
+  }
+
+  private getOrSetIsDarkModeData(value: any, isSet: boolean = false) {
+    this.isDarkMode = this.localStorageService.getValue(
+      'isDarkMode',
+      value,
+      Boolean,
+      isSet
+    );
+  }
+  public getIsDarkModeData(value?: any) {
+    return this.getOrSetIsDarkModeData(value);
+  }
+  public setIsDarkModeData(value: any = this.isDarkMode) {
+    return this.getOrSetIsDarkModeData(value, true);
   }
 
   public openSettings(): void {

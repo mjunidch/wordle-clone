@@ -12,8 +12,11 @@ export class WordleService {
     return of(WORDS.filter((word) => word.length == length));
   }
 
-  static async wait(ms: number) {
+  static async wait(ms: number, doWait: boolean = true) {
     await new Promise<void>((resolve) => {
+      if (!doWait) {
+        resolve();
+      }
       setTimeout(() => {
         resolve();
       }, ms);

@@ -55,6 +55,10 @@ export class GameThemeManagerComponent
   ngAfterViewInit(): void {
     const ne = this.elementRef.nativeElement;
     ne.style.setProperty('--guess-count', GlobalConstants.GUESS_COUNT);
+
+    if (this.gameBoard.gameStatus != GameStatus.IN_PROGRESS) {
+      this.showShare(true);
+    }
   }
 
   ngOnDestroy(): void {
@@ -112,12 +116,10 @@ export class GameThemeManagerComponent
         const curGuess = this.gameBoard.guesses[this.gameBoard.rowIndex];
         curGuess.letters += key;
 
-        let curTile = new GuessTile(
-          key,
-          LetterState.HAS_DATA,
-          TileAnimationState.POP
-        );
-        curGuess.tiles[this.gameBoard.tileIndex] = curTile;
+        let curTile = curGuess.tiles[this.gameBoard.tileIndex];
+        curTile.setData(key, LetterState.HAS_DATA);
+
+        curTile.animation = TileAnimationState.POP;
         setTimeout(() => {
           curTile.animation = TileAnimationState.IDLE;
         }, GlobalConstants.AnimationDuration.POP_IN);
@@ -128,8 +130,7 @@ export class GameThemeManagerComponent
       if (this.gameBoard.tileIndex - 1 >= 0) {
         const curGuess = this.gameBoard.guesses[this.gameBoard.rowIndex];
         curGuess.letters = curGuess.letters.slice(0, -1);
-
-        curGuess.tiles[--this.gameBoard.tileIndex] = new GuessTile();
+        curGuess.tiles[--this.gameBoard.tileIndex].clearData();
       }
     } else if (key === 'Enter') {
       this.checkCurrentGuess();
@@ -183,30 +184,18 @@ export class GameThemeManagerComponent
 
     if (curGuess.isFullyCorrect()) {
       this.gameStat.processWin(this.gameBoard.rowIndex);
-      if (!this.gameBoard.gameStarted) return;
-
       this.gameBoard.gameStatus = GameStatus.WIN;
       this.showToast('NICE!', undefined, ToastLogLevel.SUCCESS);
-      await curGuess.processWin();
-      if (!this.gameBoard.gameStarted) return;
-
-      await WordleService.wait(GlobalConstants.SHARE_POPUP_DELAY);
-      if (!this.gameBoard.gameStarted) return;
-
-      this.showShare();
+      curGuess.processWin();
+      this.showShare(true);
     } else if (this.gameBoard.rowIndex === GlobalConstants.GUESS_COUNT - 1) {
       this.gameStat.processFail();
-      if (!this.gameBoard.gameStarted) return;
-
       this.gameBoard.gameStatus = GameStatus.FAIL;
       this.showToast(
         this.gameBoard.solutionWord.toUpperCase(),
         ToastDuration.INFINITY
       );
-      await WordleService.wait(GlobalConstants.SHARE_POPUP_DELAY);
-      if (!this.gameBoard.gameStarted) return;
-
-      this.showShare();
+      this.showShare(true);
     } else {
       this.gameBoard.rowIndex++;
       this.gameBoard.tileIndex = 0;
@@ -337,7 +326,10 @@ export class GameThemeManagerComponent
     this.modalService.close(id);
   }
 
-  public async showShare() {
+  public async showShare(delay: boolean = false) {
+    if (delay) {
+      await WordleService.wait(GlobalConstants.SHARE_POPUP_DELAY);
+    }
     this.openModal('modal-statistics');
   }
 

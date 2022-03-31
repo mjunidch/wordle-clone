@@ -51,7 +51,7 @@
             </div>
             <div class="control">
               <game-switch
-                [(inputSwitchValue)]="gameSettings.isDarkMode"
+                [(inputSwitchValue)]="gameSettingsService.isDarkMode"
                 (inputSwitchValueChange)="onDarkModeChanges()"
                 id="dark-theme"
                 name="dark-theme"

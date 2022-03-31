@@ -13,7 +13,12 @@
 
   .win {
     animation-name: Bounce;
-    animation-duration: calc(var(--bounce-animation-duration) * 1ms);
+    animation-duration: calc(
+      (
+          ((var(--tile-index, 0) + 1) * var(--bounce-animation-duration)) /
+            (var(--tile-count) * 0.8)
+        ) * 1ms
+    );
   }
 }
 

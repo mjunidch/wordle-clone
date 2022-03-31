@@ -1,6 +1,7 @@
 <div class="row">
   <game-tile
-    *ngFor="let tile of data.tiles"
+    *ngFor="let tile of data.tiles; let i = index"
+    [style.--tile-index]="i"
     [tile]="tile"
     [ngClass]="tile.classList"
   ></game-tile>

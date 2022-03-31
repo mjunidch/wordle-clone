@@ -13,11 +13,10 @@ export enum GameInterval {
 }
 
 export class GameSettings {
-  public static gameInterval: GameInterval = GameInterval.MINUTES_10;
+  public static gameInterval: GameInterval = GameInterval.DAY;
 
   constructor(
     public isHardMode: boolean = false,
-    public isDarkMode: boolean = true,
     public isHighContrastMode: boolean = false
   ) {}
 

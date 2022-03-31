@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import { GuessTile } from '../game-tile/guess-tile.model';
 import { GlobalConstants } from './../../constants/global-constants.model';
-import { WordleService } from './../../services/wordle.service';
 
 export class GuessRow {
   @Type(() => GuessTile)
@@ -25,15 +24,10 @@ export class GuessRow {
     }
   }
 
-  public async processWin() {
+  public processWin() {
     for (let index = 0; index < this.tiles.length; index++) {
       let tile = this.tiles[index];
       tile.processWin();
-      await WordleService.wait(
-        (GlobalConstants.AnimationDuration.BOUNCE /
-          GlobalConstants.TILE_COUNT) *
-          0.8
-      );
     }
   }
 

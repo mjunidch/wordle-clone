@@ -6,7 +6,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
   styleUrls: ['./game-switch.component.scss'],
 })
 export class GameSwitchComponent implements OnInit {
-  @Input() public inputSwitchValue: boolean = false;
+  @Input() public inputSwitchValue?: boolean;
 
   @Output() inputSwitchValueChange: EventEmitter<boolean> =
     new EventEmitter<boolean>();
@@ -21,7 +21,7 @@ export class GameSwitchComponent implements OnInit {
 
   // @HostListener('click', ['$event', '$event.target'])
   handleOnClickEvent(event: MouseEvent) {
-    if (this.disabled) return;
+    if (this.disabled != null && this.disabled) return;
     this.inputSwitchValueChange.emit(this.inputSwitchValue);
   }
 }
