@@ -3,73 +3,69 @@
 }
 
 :root {
-  --green: #6aaa64;
-  --darkendGreen: #538d4e;
-  --yellow: #c9b458;
-  --darkendYellow: #b59f3b;
-  --lightGray: #d8d8d8;
-  --gray: #86888a;
-  --darkGray: #939598;
-  --white: #fff;
-  --black: #212121;
+  --green: hsl(115, 29%, 53%);
+  --darkendGreen: hsl(115, 29%, 43%);
+  --yellow: hsl(49, 51%, 57%);
+  --darkendYellow: hsl(49, 51%, 47%);
+  --lightGray: hsl(0, 0%, 85%);
+  --gray: hsl(210, 2%, 53%);
+  --darkGray: hsl(216, 2%, 59%);
+  --white: hsl(0, 0%, 100%);
+  --black: hsl(0, 0%, 13%);
+
   /* Colorblind colors */
-  --orange: #f5793a;
-  --blue: #85c0f9;
+  --orange: hsl(20, 90%, 59%);
+  --blue: hsl(209, 91%, 75%);
+
   font-family: "Roboto Slab", Arial, sans-serif;
   font-size: 16px;
+
   --header-height: 50px;
   --keyboard-height: 200px;
   --game-max-width: 500px;
 }
 
+@mixin light-style {
+  --color-tone-1: hsl(0, 0%, 0%);
+  --color-tone-2: hsl(200, 2%, 48%);
+  --color-tone-3: hsl(204, 2%, 54%);
+  --color-tone-4: hsl(214, 9%, 84%);
+  --color-tone-5: hsl(210, 12%, 94%);
+  --color-tone-6: hsl(210, 12%, 97%);
+  --color-tone-7: hsl(0, 0%, 100%);
+  --color-nav-hover: hsl(0, 0%, 96%);
+  --opacity-50: hsla(0, 0%, 100%, 0.5);
+  --lightness-offset: 10;
+}
+
+@mixin dark-style {
+  --color-tone-1: hsl(0, 0%, 100%);
+  --color-tone-2: hsl(200, 1%, 51%);
+  --color-tone-3: hsl(210, 1%, 34%);
+  --color-tone-4: hsl(240, 2%, 23%);
+  --color-tone-5: hsl(240, 3%, 16%);
+  --color-tone-6: hsl(240, 2%, 10%);
+  --color-tone-7: hsl(240, 3%, 7%);
+  --color-nav-hover: hsl(240, 2%, 19%);
+  --opacity-50: hsla(0, 0%, 0%, 0.5);
+}
+
 :root {
-  --color-tone-1: #000000;
-  --color-tone-2: #787c7e;
-  --color-tone-3: #878a8c;
-  --color-tone-4: #d3d6da;
-  --color-tone-5: #edeff1;
-  --color-tone-6: #f6f7f8;
-  --color-tone-7: #ffffff;
-  --color-nav-hover: #f4f4f4;
-  --opacity-50: rgba(255, 255, 255, 0.5);
+  @include light-style;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-tone-1: #ffffff;
-    --color-tone-2: #818384;
-    --color-tone-3: #565758;
-    --color-tone-4: #3a3a3c;
-    --color-tone-5: #272729;
-    --color-tone-6: #1a1a1b;
-    --color-tone-7: #121213;
-    --color-nav-hover: #2f2f31;
-    --opacity-50: rgba(0, 0, 0, 0.5);
+    @include dark-style;
   }
 }
 
 .night-mode {
-  --color-tone-1: #ffffff;
-  --color-tone-2: #818384;
-  --color-tone-3: #565758;
-  --color-tone-4: #3a3a3c;
-  --color-tone-5: #272729;
-  --color-tone-6: #1a1a1b;
-  --color-tone-7: #121213;
-  --color-nav-hover: #2f2f31;
-  --opacity-50: rgba(0, 0, 0, 0.5);
+  @include dark-style;
 }
 
 .light-mode {
-  --color-tone-1: #000000;
-  --color-tone-2: #787c7e;
-  --color-tone-3: #878a8c;
-  --color-tone-4: #d3d6da;
-  --color-tone-5: #edeff1;
-  --color-tone-6: #f6f7f8;
-  --color-tone-7: #ffffff;
-  --color-nav-hover: #f4f4f4;
-  --opacity-50: rgba(255, 255, 255, 0.5);
+  @include light-style;
 }
 
 :root,
@@ -77,7 +73,8 @@
 .light-mode {
   --color-background: var(--color-tone-7);
 }
-:root {
+
+@mixin light-theme {
   --color-present: var(--yellow);
   --color-correct: var(--green);
   --color-absent: var(--color-tone-2);
@@ -91,23 +88,7 @@
   --modal-content-bg: var(--color-tone-7);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-present: var(--darkendYellow);
-    --color-correct: var(--darkendGreen);
-    --color-absent: var(--color-tone-4);
-    --tile-text-color: var(--color-tone-1);
-    --key-text-color: var(--color-tone-1);
-    --key-evaluated-text-color: var(--color-tone-1);
-    --key-bg: var(--color-tone-2);
-    --key-bg-present: var(--color-present);
-    --key-bg-correct: var(--color-correct);
-    --key-bg-absent: var(--color-absent);
-    --modal-content-bg: var(--color-tone-7);
-  }
-}
-
-.night-mode {
+@mixin dark-theme {
   --color-present: var(--darkendYellow);
   --color-correct: var(--darkendGreen);
   --color-absent: var(--color-tone-4);
@@ -120,19 +101,22 @@
   --key-bg-absent: var(--color-absent);
   --modal-content-bg: var(--color-tone-7);
 }
+:root {
+  @include light-theme;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include dark-theme;
+  }
+}
+
+.night-mode {
+  @include dark-theme;
+}
 
 .light-mode {
-  --color-present: var(--yellow);
-  --color-correct: var(--green);
-  --color-absent: var(--color-tone-2);
-  --tile-text-color: var(--color-tone-7);
-  --key-text-color: var(--color-tone-1);
-  --key-evaluated-text-color: var(--color-tone-7);
-  --key-bg: var(--color-tone-4);
-  --key-bg-present: var(--color-present);
-  --key-bg-correct: var(--color-correct);
-  --key-bg-absent: var(--color-absent);
-  --modal-content-bg: var(--color-tone-7);
+  @include light-theme;
 }
 
 .colorblind {
@@ -146,7 +130,15 @@
 
 html {
   height: 100%;
+  box-sizing: border-box;
 }
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
 body {
   height: 100%;
   background-color: var(--color-background);
